@@ -1,7 +1,7 @@
 package gins
 
 import (
-	"github.com/aiechoic/admin/internal/openapi"
+	"github.com/aiechoic/admin/core/openapi"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -47,9 +47,6 @@ cors_allow_headers: ["Origin", "Content-Length", "Content-Type", "Authorization"
 cors_allow_credentials: false
 cors_allow_origins: ["*"]
 cors_max_age: "12h"
-
-# enable docs, automatically serve swagger-ui and redoc
-enable_docs: true
 
 `
 

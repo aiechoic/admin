@@ -2,8 +2,8 @@ package gins
 
 import (
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
-	"github.com/aiechoic/admin/internal/service"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/core/service"
 )
 
 var Providers = ioc.NewProviders[*Server](func(name string) *ioc.Provider[*Server] {

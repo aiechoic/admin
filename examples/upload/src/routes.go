@@ -1,8 +1,8 @@
 package src
 
 import (
-	"github.com/aiechoic/admin/internal/gins"
-	"github.com/aiechoic/admin/internal/ioc"
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/ioc"
 )
 
 func NewService(c *ioc.Container) *gins.Service {

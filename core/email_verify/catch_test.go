@@ -2,9 +2,9 @@ package email_verify_test
 
 import (
 	"context"
-	"github.com/aiechoic/admin/internal/email_verify"
-	"github.com/aiechoic/admin/internal/ioc"
-	"github.com/aiechoic/admin/internal/service"
+	"github.com/aiechoic/admin/core/email_verify"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/core/service"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

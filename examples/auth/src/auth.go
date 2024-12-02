@@ -2,7 +2,7 @@ package src
 
 import (
 	"fmt"
-	"github.com/aiechoic/admin/internal/openapi"
+	"github.com/aiechoic/admin/core/openapi"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"

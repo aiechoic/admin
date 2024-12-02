@@ -1,7 +1,7 @@
 package src
 
 import (
-	"github.com/aiechoic/admin/internal/gins"
+	"github.com/aiechoic/admin/core/gins"
 )
 
 func NewService(auth *JWTAuth) *gins.Service {

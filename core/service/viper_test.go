@@ -1,7 +1,7 @@
 package service_test
 
 import (
-	"github.com/aiechoic/admin/internal/service"
+	"github.com/aiechoic/admin/core/service"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"

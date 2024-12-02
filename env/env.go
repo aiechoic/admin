@@ -1,8 +1,8 @@
 package env
 
 import (
-	"github.com/aiechoic/admin/internal/ioc"
-	"github.com/aiechoic/admin/internal/service"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/core/service"
 )
 
 const DefaultEnvConfig = "env"

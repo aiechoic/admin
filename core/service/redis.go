@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
+	"github.com/aiechoic/admin/core/ioc"
 	"github.com/redis/go-redis/v9"
 	"log"
 	"net"

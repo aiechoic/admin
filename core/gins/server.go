@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/aiechoic/admin/internal/openapi"
+	"github.com/aiechoic/admin/core/openapi"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
