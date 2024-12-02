@@ -1,0 +1,46 @@
+package {{.package}}
+
+import (
+	"github.com/aiechoic/admin/internal/gins"
+	"github.com/aiechoic/admin/internal/ioc"
+)
+
+func New{{.model}}Service(c *ioc.Container) *gins.Service {
+	h := New{{.model}}Handler(c)
+	return &gins.Service{
+		Tag:  "{{.model}}",
+		Path: "",
+		Routes: []gins.Route{
+			{
+				Method:  "GET",
+				Summary: "Get {{.model}}",
+				Path:    "{{.value}}/:id",
+				Handler: h.Get(),
+			},
+			{
+				Method:  "POST",
+				Summary: "Create {{.model}}",
+				Path:    "{{.value}}",
+				Handler: h.Create(),
+			},
+			{
+				Method:  "PUT",
+				Summary: "Update {{.model}}",
+				Path:    "{{.value}}/:id",
+				Handler: h.Update(),
+			},
+			{
+				Method:  "DELETE",
+				Summary: "Delete {{.model}}",
+				Path:    "{{.value}}/:id",
+				Handler: h.Delete(),
+			},
+			{
+				Method:  "GET",
+				Summary: "List {{.models}}",
+				Path:    "/{{.values}}",
+				Handler: h.List(),
+			},
+		},
+	}
+}
