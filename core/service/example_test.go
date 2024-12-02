@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
+	"github.com/aiechoic/admin/core/ioc"
 	"os"
 	"path/filepath"
 )

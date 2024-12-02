@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
+	"github.com/aiechoic/admin/core/ioc"
 	"html/template"
 	"net/smtp"
 )

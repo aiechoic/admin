@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/ioc"
 	"github.com/aiechoic/admin/examples/auth/src"
-	"github.com/aiechoic/admin/internal/gins"
-	"github.com/aiechoic/admin/internal/ioc"
 	"github.com/aiechoic/admin/src/doc"
 )
 

@@ -1,7 +1,7 @@
 package gins
 
 import (
-	"github.com/aiechoic/admin/internal/openapi"
+	"github.com/aiechoic/admin/core/openapi"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"time"

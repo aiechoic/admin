@@ -1,8 +1,8 @@
 package doc
 
 import (
-	"github.com/aiechoic/admin/internal/gins"
-	"github.com/aiechoic/admin/internal/openapi"
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/openapi"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

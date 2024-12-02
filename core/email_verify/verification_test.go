@@ -1,7 +1,7 @@
 package email_verify_test
 
 import (
-	"github.com/aiechoic/admin/internal/email_verify"
+	"github.com/aiechoic/admin/core/email_verify"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

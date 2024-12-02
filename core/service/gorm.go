@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
+	"github.com/aiechoic/admin/core/ioc"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"

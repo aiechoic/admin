@@ -2,8 +2,8 @@ package email_verify
 
 import (
 	"fmt"
-	"github.com/aiechoic/admin/internal/ioc"
-	"github.com/aiechoic/admin/internal/service"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/core/service"
 )
 
 var providers = ioc.NewProviders[*EmailVerification](func(name string) *ioc.Provider[*EmailVerification] {

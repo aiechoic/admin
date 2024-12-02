@@ -1,7 +1,7 @@
 package email_verify
 
 import (
-	"github.com/aiechoic/admin/internal/random"
+	"github.com/aiechoic/admin/core/random"
 	"time"
 )
 
