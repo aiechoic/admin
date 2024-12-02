@@ -48,9 +48,6 @@ cors_allow_credentials: false
 cors_allow_origins: ["*"]
 cors_max_age: "12h"
 
-# enable docs, automatically serve swagger-ui and redoc
-enable_docs: true
-
 `
 
 type openAPIServer struct {
