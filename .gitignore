@@ -12,7 +12,7 @@
 /gen
 
 # main files
-main.go
+/main.go
 
 # src files
 src/*
