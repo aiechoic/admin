@@ -1,0 +1,172 @@
+package {{.package}}
+
+import (
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/gorm"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/pkg/errs"
+	"github.com/aiechoic/admin/pkg/rsp"
+	"github.com/gin-gonic/gin"
+	"strconv"
+)
+
+type {{.model}}Handler struct {
+	db *{{.model}}DB
+}
+
+func New{{.model}}Handler(c *ioc.Container) *{{.model}}Handler {
+    // auto migrate the model
+    var model {{.model}}
+	db, err := gorm.GetDefaultDB(c, model)
+	if err != nil {
+		panic(err)
+	}
+	return &{{.model}}Handler{db: New{{.model}}DB(db)}
+}
+
+func (h *{{.model}}Handler) Get() gins.Handler {
+	var model {{.model}}
+	return gins.Handler{
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			idStr := c.Param("id")
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			var t *{{.model}}
+			t, err = h.db.Get(id)
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.model}}Handler) Create() gins.Handler {
+	var model {{.model}}
+	return gins.Handler{
+		Request: gins.Request{
+			Json:       model,
+			OmitFields: []string{"ID"},
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var t {{.model}}
+			if err := c.ShouldBindJSON(&t); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			if err := h.db.Create(&t); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.model}}Handler) Update() gins.Handler {
+	var model {{.model}}
+	return gins.Handler{
+		Request: gins.Request{
+			Json:       model,
+			OmitFields: []string{"ID"},
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			idStr := c.Param("id")
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			var t {{.model}}
+			if err = c.ShouldBindJSON(&t); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			if err = h.db.Update(id, &t); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.model}}Handler) Delete() gins.Handler {
+	return gins.Handler{
+		Response: gins.Response{
+			Json: rsp.Response{},
+		},
+		Handle: func(c *gin.Context) {
+			idStr := c.Param("id")
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			if err = h.db.Delete(id); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, nil)
+		},
+	}
+}
+
+func (h *{{.model}}Handler) List() gins.Handler {
+	type params struct {
+		Page     int  `form:"page" binding:"required" description:"The page number"`
+		PageSize int  `form:"pageSize" binding:"required" description:"The page size"`
+		Desc     bool `form:"desc" description:"The order"`
+	}
+	type response struct {
+		List  []*{{.model}} `json:"list" description:"The list data"`
+		Total int64   `json:"total" description:"The total count"`
+	}
+	return gins.Handler{
+		Request: gins.Request{
+			Query: params{},
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: response{},
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var p params
+			if err := c.ShouldBindQuery(&p); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			total, err := h.db.Count()
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			data, err := h.db.Find(p.Desc, p.Page, p.PageSize)
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, response{List: data, Total: total})
+		},
+	}
+}
