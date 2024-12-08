@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -21,29 +22,25 @@ type Schema struct {
 	Items       *Schema            `json:"items,omitempty"`
 }
 
-func NewSchema(v any, key, tag string, omitFields []string) (schema *Schema, refs map[string]*Schema) {
-	sb := newSchemaBuilder(key, tag, omitFields)
+func NewSchema(v any, tag string) (schema *Schema, refs map[string]*Schema) {
+	sb := newSchemaBuilder(tag)
 	schema = sb.newSchema(reflect.ValueOf(v))
 	refs = sb.getPointerRefs()
 	return schema, refs
 }
 
 type schemaBuilder struct {
-	refs       map[string]*Schema
-	pointers   []string
-	key        string
-	tag        string
-	omitFields []string
-	modelPath  string
+	refs      map[string]*Schema
+	pointers  []string
+	tag       string
+	modelPath string
 }
 
-func newSchemaBuilder(key, tag string, omitFields []string) *schemaBuilder {
+func newSchemaBuilder(tag string) *schemaBuilder {
 	return &schemaBuilder{
-		refs:       map[string]*Schema{},
-		key:        key,
-		tag:        tag,
-		omitFields: omitFields,
-		modelPath:  "#/components/schemas/",
+		refs:      map[string]*Schema{},
+		tag:       tag,
+		modelPath: "#/components/schemas/",
 	}
 }
 
@@ -134,7 +131,8 @@ func setSchemaRequired(schema *Schema, property string, required bool) {
 }
 
 func (sb *schemaBuilder) newStructSchema(v reflect.Value) *Schema {
-	ref := fmt.Sprintf("%s%s-%s", sb.modelPath, sb.key, v.Type().Name())
+	uniqueName := getStructUniqueName(v.Type(), 0)
+	ref := sb.modelPath + uniqueName
 	if _, ok := sb.refs[ref]; ok {
 		sb.pointers = append(sb.pointers, ref)
 		return &Schema{Ref: ref}
@@ -154,9 +152,6 @@ func (sb *schemaBuilder) newStructSchema(v reflect.Value) *Schema {
 					schema.Properties[k] = s
 				}
 			}
-			continue
-		}
-		if slices.Contains(sb.omitFields, field.Name) {
 			continue
 		}
 		ftg := field.Tag
@@ -209,4 +204,25 @@ func (sb *schemaBuilder) newMapSchema(v reflect.Value) *Schema {
 		s.Properties[mKey.String()] = sb.newSchema(v.MapIndex(mKey))
 	}
 	return s
+}
+
+var uniqueTypeCache = sync.Map{}
+var uniqueNameCache = sync.Map{}
+
+func getStructUniqueName(t reflect.Type, index int) string {
+	if uniqueName, ok := uniqueTypeCache.Load(t); ok {
+		return uniqueName.(string)
+	}
+	var uniqueName string
+	if index == 0 {
+		uniqueName = fmt.Sprintf("%s", t.Name())
+	} else {
+		uniqueName = fmt.Sprintf("%s-%d", t.Name(), index)
+	}
+	if _, ok := uniqueNameCache.Load(uniqueName); ok {
+		return getStructUniqueName(t, index+1)
+	}
+	uniqueTypeCache.Store(t, uniqueName)
+	uniqueNameCache.Store(uniqueName, struct{}{})
+	return uniqueName
 }

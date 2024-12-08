@@ -65,7 +65,7 @@ func TestNewSchema(t *testing.T) {
 	}
 	t.Run("testcases", func(t *testing.T) {
 		for _, tc := range testcases {
-			schema, _ := NewSchema(tc.v, "", "json", nil)
+			schema, _ := NewSchema(tc.v, "json")
 			assert.Equal(t, getJson(tc.schema), getJson(schema))
 		}
 	})
@@ -74,7 +74,7 @@ func TestNewSchema(t *testing.T) {
 		// 创建测试数据
 		a := &RecursiveTypeA{}
 		// 调用生成 schema
-		gotSchema, gotRefs := NewSchema(a, "unique", "json", nil)
+		gotSchema, gotRefs := NewSchema(a, "json")
 		needSchema := &Schema{
 			Type:     "object",
 			Nullable: true,
@@ -84,14 +84,14 @@ func TestNewSchema(t *testing.T) {
 					Nullable: true,
 					Properties: map[string]*Schema{
 						"a": {
-							Ref: "#/components/schemas/unique-RecursiveTypeA",
+							Ref: "#/components/schemas/RecursiveTypeA",
 						},
 					},
 				},
 			},
 		}
 		needRefs := map[string]*Schema{
-			"unique-RecursiveTypeA": {
+			"RecursiveTypeA": {
 				Type:     "object",
 				Nullable: true,
 				Properties: map[string]*Schema{
@@ -100,7 +100,7 @@ func TestNewSchema(t *testing.T) {
 						Nullable: true,
 						Properties: map[string]*Schema{
 							"a": {
-								Ref: "#/components/schemas/unique-RecursiveTypeA",
+								Ref: "#/components/schemas/RecursiveTypeA",
 							},
 						},
 					},

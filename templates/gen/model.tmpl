@@ -19,6 +19,7 @@ func (db *{{.model}}DB) Create(model *{{.model}}) error {
 }
 
 func (db *{{.model}}DB) Update(id int, model *{{.model}}) error {
+    model.ID = id
 	return db.db.Model(model).Where("id = ?", id).Omit("id").Updates(model).Error
 }
 

@@ -7,7 +7,6 @@ import (
 	"github.com/aiechoic/admin/pkg/errs"
 	"github.com/aiechoic/admin/pkg/rsp"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type {{.model}}Handler struct {
@@ -25,22 +24,26 @@ func New{{.model}}Handler(c *ioc.Container) *{{.model}}Handler {
 }
 
 func (h *{{.model}}Handler) Get() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.model}}"`
+    }
 	var model {{.model}}
 	return gins.Handler{
+	    Request: gins.Request{
+            Uri: params{},
+        },
 		Response: gins.Response{
 			Json: rsp.Response{
 				Data: model,
 			},
 		},
 		Handle: func(c *gin.Context) {
-			idStr := c.Param("id")
-			id, err := strconv.Atoi(idStr)
-			if err != nil {
-				rsp.SendError(c, errs.BadRequest, err)
-				return
-			}
-			var t *{{.model}}
-			t, err = h.db.Get(id)
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
+			t, err := h.db.Get(p.ID)
 			if err != nil {
 				rsp.SendError(c, errs.InternalServerError, err)
 				return
@@ -54,8 +57,7 @@ func (h *{{.model}}Handler) Create() gins.Handler {
 	var model {{.model}}
 	return gins.Handler{
 		Request: gins.Request{
-			Json:       model,
-			OmitFields: []string{"ID"},
+			Json: model,
 		},
 		Response: gins.Response{
 			Json: rsp.Response{
@@ -78,11 +80,14 @@ func (h *{{.model}}Handler) Create() gins.Handler {
 }
 
 func (h *{{.model}}Handler) Update() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.model}}"`
+    }
 	var model {{.model}}
 	return gins.Handler{
 		Request: gins.Request{
-			Json:       model,
-			OmitFields: []string{"ID"},
+		    Uri: params{},
+			Json: model,
 		},
 		Response: gins.Response{
 			Json: rsp.Response{
@@ -90,18 +95,17 @@ func (h *{{.model}}Handler) Update() gins.Handler {
 			},
 		},
 		Handle: func(c *gin.Context) {
-			idStr := c.Param("id")
-			id, err := strconv.Atoi(idStr)
-			if err != nil {
-				rsp.SendError(c, errs.BadRequest, err)
-				return
-			}
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
 			var t {{.model}}
-			if err = c.ShouldBindJSON(&t); err != nil {
+			if err := c.ShouldBindJSON(&t); err != nil {
 				rsp.SendError(c, errs.BadRequest, err)
 				return
 			}
-			if err = h.db.Update(id, &t); err != nil {
+			if err := h.db.Update(p.ID, &t); err != nil {
 				rsp.SendError(c, errs.InternalServerError, err)
 				return
 			}
@@ -111,18 +115,23 @@ func (h *{{.model}}Handler) Update() gins.Handler {
 }
 
 func (h *{{.model}}Handler) Delete() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.model}}"`
+    }
 	return gins.Handler{
+	    Request: gins.Request{
+            Uri: params{},
+        },
 		Response: gins.Response{
 			Json: rsp.Response{},
 		},
 		Handle: func(c *gin.Context) {
-			idStr := c.Param("id")
-			id, err := strconv.Atoi(idStr)
-			if err != nil {
-				rsp.SendError(c, errs.BadRequest, err)
-				return
-			}
-			if err = h.db.Delete(id); err != nil {
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
+			if err := h.db.Delete(p.ID); err != nil {
 				rsp.SendError(c, errs.InternalServerError, err)
 				return
 			}

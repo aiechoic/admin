@@ -4,6 +4,10 @@ import "log"
 
 type Code int
 
+func (c Code) Error() string {
+	return codeText[c]
+}
+
 var codeText = map[Code]string{
 	BadRequest:          "Bad Request",
 	Unauthorized:        "Unauthorized",

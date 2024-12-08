@@ -20,33 +20,24 @@ func (s *APIServer) Register(services ...*Service) {
 	}
 }
 
-// getSwaggerPath returns the swagger path for a given gin path
-// e.g. /api/v1/user/:id -> /api/v1/user/{id}
-func getSwaggerPath(ginPath string) string {
-	pathParts := strings.Split(ginPath, "/")
-	var hasPathParams bool
-	for i, part := range pathParts {
-		if strings.HasPrefix(part, ":") {
-			paramName := part[1:]
-			part = fmt.Sprintf("{%s}", paramName)
-			hasPathParams = true
+// convertGinPathToSwaggerPath 将 Gin 路径转换为 Swagger 路径
+func convertGinPathToSwaggerPath(ginPath string) string {
+	segments := strings.Split(ginPath, "/")
+	for i, segment := range segments {
+		if strings.HasPrefix(segment, ":") || strings.HasPrefix(segment, "*") {
+			segments[i] = "{" + segment[1:] + "}"
 		}
-		pathParts[i] = part
 	}
-	if hasPathParams {
-		return strings.Join(pathParts, "/")
-	} else {
-		return ginPath
-	}
+	return strings.Join(segments, "/")
 }
 
-// getRouteFullPath returns the full path for a route, if the route path is relative(not starting with "/")
+// getAbsoluteFullPath returns the full path for a route, if the route path is relative(not starting with "/")
 // it will be appended to the base path, otherwise it will return the route path as is
 // for example:
 //
 //	/foo, /bar -> /bar
 //	/foo, bar -> /foo/bar
-func getRouteFullPath(basePath, routePath string) string {
+func getAbsoluteFullPath(basePath, routePath string) string {
 	if strings.HasPrefix(routePath, "/") {
 		return routePath
 	} else {
@@ -70,10 +61,10 @@ func (s *APIServer) register(service *Service) {
 		route.Method = strings.ToLower(route.Method)
 
 		// get full path
-		fullPath := getRouteFullPath(service.Path, route.Path)
+		fullPath := getAbsoluteFullPath(service.Path, route.Path)
 
 		// get swagger path
-		swaggerPath := getSwaggerPath(fullPath)
+		swaggerPath := convertGinPathToSwaggerPath(fullPath)
 		pathItem, ok := o.Paths[swaggerPath]
 		if !ok {
 			pathItem = make(openapi.PathItem)
@@ -87,16 +78,14 @@ func (s *APIServer) register(service *Service) {
 			}
 		}
 
-		uniqueKey := fmt.Sprintf("%s-%s", strings.Replace(strings.TrimPrefix(fullPath, "/"), "/", "-", -1), route.Method)
-
 		// get request parameters and request body contents
-		parameters, refs := route.Handler.Request.getParameters(uniqueKey)
+		parameters, refs := route.Handler.Request.getParameters()
 		o.AddComponentsSchemas(refs)
-		requestContent, refs := route.Handler.Request.getBodyContents(uniqueKey)
+		requestContent, refs := route.Handler.Request.getBodyContents()
 		o.AddComponentsSchemas(refs)
 
 		// get response contents
-		responseContent, refs := route.Handler.Response.getBodyContents(uniqueKey)
+		responseContent, refs := route.Handler.Response.getBodyContents()
 		o.AddComponentsSchemas(refs)
 
 		// create operation

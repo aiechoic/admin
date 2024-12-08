@@ -53,8 +53,6 @@ type Request struct {
 	// generate the Contents field and set the corresponding schema.
 	// See https://swagger.io/specification/#request-body-object for more information.
 	Contents map[openapi.ContentType]*openapi.MediaType
-
-	OmitFields []string
 }
 
 func hasFileProperty(s *openapi.Schema) bool {
@@ -72,17 +70,17 @@ func hasFileProperty(s *openapi.Schema) bool {
 	return s.Format == "binary"
 }
 
-func (r *Request) getBodyContents(key string) (map[openapi.ContentType]*openapi.MediaType, map[string]*openapi.Schema) {
+func (r *Request) getBodyContents() (map[openapi.ContentType]*openapi.MediaType, map[string]*openapi.Schema) {
 	var contents = map[openapi.ContentType]*openapi.MediaType{}
 	var refs map[string]*openapi.Schema
 	var schema *openapi.Schema
 	if r.Json != nil {
-		schema, refs = openapi.NewSchema(r.Json, key, "json", r.OmitFields)
+		schema, refs = openapi.NewSchema(r.Json, "json")
 		contents[openapi.ContentTypeJson] = &openapi.MediaType{
 			Schema: schema,
 		}
 	} else if r.Form != nil {
-		schema, refs = openapi.NewSchema(r.Form, key, "form", r.OmitFields)
+		schema, refs = openapi.NewSchema(r.Form, "form")
 		var ct openapi.ContentType
 		if hasFileProperty(schema) {
 			ct = openapi.ContentTypeMultipartForm
@@ -93,7 +91,7 @@ func (r *Request) getBodyContents(key string) (map[openapi.ContentType]*openapi.
 			Schema: schema,
 		}
 	} else if r.Xml != nil {
-		schema, refs = openapi.NewSchema(r.Xml, key, "xml", r.OmitFields)
+		schema, refs = openapi.NewSchema(r.Xml, "xml")
 		contents[openapi.ContentTypeXml] = &openapi.MediaType{
 			Schema: schema,
 		}
@@ -105,22 +103,22 @@ func (r *Request) getBodyContents(key string) (map[openapi.ContentType]*openapi.
 	return contents, refs
 }
 
-func (r *Request) getParameters(key string) (parameters []*openapi.Parameter, refs map[string]*openapi.Schema) {
+func (r *Request) getParameters() (parameters []*openapi.Parameter, refs map[string]*openapi.Schema) {
 	refs = map[string]*openapi.Schema{}
 	if r.Header != nil {
-		parameters = append(parameters, r.getParametersWith(key, "header", "header", r.Header, refs)...)
+		parameters = append(parameters, r.getParametersWith("header", "header", r.Header, refs)...)
 	}
 	if r.Uri != nil {
-		parameters = append(parameters, r.getParametersWith(key, "uri", "path", r.Uri, refs)...)
+		parameters = append(parameters, r.getParametersWith("uri", "path", r.Uri, refs)...)
 	}
 	if r.Query != nil {
-		parameters = append(parameters, r.getParametersWith(key, "form", "query", r.Query, refs)...)
+		parameters = append(parameters, r.getParametersWith("form", "query", r.Query, refs)...)
 	}
 	return parameters, refs
 }
 
-func (r *Request) getParametersWith(key, tag, in string, value any, refs map[string]*openapi.Schema) (parameters []*openapi.Parameter) {
-	schema, subRefs := openapi.NewSchema(value, key, tag, r.OmitFields)
+func (r *Request) getParametersWith(tag, in string, value any, refs map[string]*openapi.Schema) (parameters []*openapi.Parameter) {
+	schema, subRefs := openapi.NewSchema(value, tag)
 	for name, p := range schema.Properties {
 		parameters = append(parameters, &openapi.Parameter{
 			Name:        name,
@@ -156,17 +154,17 @@ type Response struct {
 	OmitFields []string
 }
 
-func (r *Response) getBodyContents(key string) (map[openapi.ContentType]*openapi.MediaType, map[string]*openapi.Schema) {
+func (r *Response) getBodyContents() (map[openapi.ContentType]*openapi.MediaType, map[string]*openapi.Schema) {
 	var contents = map[openapi.ContentType]*openapi.MediaType{}
 	var schema *openapi.Schema
 	var refs map[string]*openapi.Schema
 	if r.Json != nil {
-		schema, refs = openapi.NewSchema(r.Json, key, "json", r.OmitFields)
+		schema, refs = openapi.NewSchema(r.Json, "json")
 		contents[openapi.ContentTypeJson] = &openapi.MediaType{
 			Schema: schema,
 		}
 	} else if r.Xml != nil {
-		schema, refs = openapi.NewSchema(r.Xml, key, "xml", r.OmitFields)
+		schema, refs = openapi.NewSchema(r.Xml, "xml")
 		contents[openapi.ContentTypeXml] = &openapi.MediaType{
 			Schema: schema,
 		}
