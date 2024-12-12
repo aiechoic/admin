@@ -1,0 +1,181 @@
+package {{.package}}
+
+import (
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/gorm"
+	"github.com/aiechoic/admin/core/ioc"
+	"github.com/aiechoic/admin/pkg/errs"
+	"github.com/aiechoic/admin/pkg/rsp"
+	"github.com/gin-gonic/gin"
+)
+
+type {{.CamelCaseModel}}Handler struct {
+	db *{{.CamelCaseModel}}DB
+}
+
+func New{{.CamelCaseModel}}Handler(c *ioc.Container) *{{.CamelCaseModel}}Handler {
+    // auto migrate the model
+    var model {{.CamelCaseModel}}
+	db, err := gorm.GetDefaultDB(c, model)
+	if err != nil {
+		panic(err)
+	}
+	return &{{.CamelCaseModel}}Handler{db: New{{.CamelCaseModel}}DB(db)}
+}
+
+func (h *{{.CamelCaseModel}}Handler) Get() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.CamelCaseModel}}"`
+    }
+	var model {{.CamelCaseModel}}
+	return gins.Handler{
+	    Request: gins.Request{
+            Uri: params{},
+        },
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
+			t, err := h.db.Get(p.ID)
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.CamelCaseModel}}Handler) Create() gins.Handler {
+	var model {{.CamelCaseModel}}
+	return gins.Handler{
+		Request: gins.Request{
+			Json: model,
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var t {{.CamelCaseModel}}
+			if err := c.ShouldBindJSON(&t); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			if err := h.db.Create(&t); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.CamelCaseModel}}Handler) Update() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.CamelCaseModel}}"`
+    }
+	var model {{.CamelCaseModel}}
+	return gins.Handler{
+		Request: gins.Request{
+		    Uri: params{},
+			Json: model,
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: model,
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
+			var t {{.CamelCaseModel}}
+			if err := c.ShouldBindJSON(&t); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			if err := h.db.Update(p.ID, &t); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, t)
+		},
+	}
+}
+
+func (h *{{.CamelCaseModel}}Handler) Delete() gins.Handler {
+    type params struct {
+        ID int `uri:"id" binding:"required" description:"The id of the {{.CamelCaseModel}}"`
+    }
+	return gins.Handler{
+	    Request: gins.Request{
+            Uri: params{},
+        },
+		Response: gins.Response{
+			Json: rsp.Response{},
+		},
+		Handle: func(c *gin.Context) {
+			var p params
+			if err := c.ShouldBindUri(&p); err != nil {
+                rsp.SendError(c, errs.BadRequest, err)
+                return
+            }
+			if err := h.db.Delete(p.ID); err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, nil)
+		},
+	}
+}
+
+func (h *{{.CamelCaseModel}}Handler) List() gins.Handler {
+	type params struct {
+		Page     int  `form:"page" binding:"required" description:"The page number"`
+		PageSize int  `form:"pageSize" binding:"required" description:"The page size"`
+		Desc     bool `form:"desc" description:"The order"`
+	}
+	type response struct {
+		List  []*{{.CamelCaseModel}} `json:"list" description:"The list data"`
+		Total int64   `json:"total" description:"The total count"`
+	}
+	return gins.Handler{
+		Request: gins.Request{
+			Query: params{},
+		},
+		Response: gins.Response{
+			Json: rsp.Response{
+				Data: response{},
+			},
+		},
+		Handle: func(c *gin.Context) {
+			var p params
+			if err := c.ShouldBindQuery(&p); err != nil {
+				rsp.SendError(c, errs.BadRequest, err)
+				return
+			}
+			total, err := h.db.Count()
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			data, err := h.db.Find(p.Desc, p.Page, p.PageSize)
+			if err != nil {
+				rsp.SendError(c, errs.InternalServerError, err)
+				return
+			}
+			rsp.SendSuccess(c, response{List: data, Total: total})
+		},
+	}
+}

@@ -1,0 +1,22 @@
+# IDE
+.idea/
+.vscode/
+
+# Go modules cache
+/go.sum
+/go.work
+/go.work.sum
+
+# binary files
+/gen.exe
+/gen
+
+# main files
+/main.go
+
+# src files
+src/*
+!src/doc/
+
+# test files
+/test/

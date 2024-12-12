@@ -1,0 +1,46 @@
+package {{.package}}
+
+import (
+	"github.com/aiechoic/admin/core/gins"
+	"github.com/aiechoic/admin/core/ioc"
+)
+
+func New{{.CamelCaseModel}}Service(c *ioc.Container) *gins.Service {
+	h := New{{.CamelCaseModel}}Handler(c)
+	return &gins.Service{
+		Tag:  "{{.CamelCaseModel}}",
+		Path: "",
+		Routes: []gins.Route{
+			{
+				Method:  "GET",
+				Summary: "Get {{.CamelCaseModel}}",
+				Path:    "{{.snakeCaseModel}}/:id",
+				Handler: h.Get(),
+			},
+			{
+				Method:  "POST",
+				Summary: "Create {{.CamelCaseModel}}",
+				Path:    "{{.snakeCaseModel}}",
+				Handler: h.Create(),
+			},
+			{
+				Method:  "PUT",
+				Summary: "Update {{.CamelCaseModel}}",
+				Path:    "{{.snakeCaseModel}}/:id",
+				Handler: h.Update(),
+			},
+			{
+				Method:  "DELETE",
+				Summary: "Delete {{.CamelCaseModel}}",
+				Path:    "{{.snakeCaseModel}}/:id",
+				Handler: h.Delete(),
+			},
+			{
+				Method:  "GET",
+				Summary: "List {{.CamelCaseModels}}",
+				Path:    "/{{.snakeCaseModels}}",
+				Handler: h.List(),
+			},
+		},
+	}
+}

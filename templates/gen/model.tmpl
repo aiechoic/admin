@@ -1,0 +1,60 @@
+package {{.package}}
+
+import "gorm.io/gorm"
+
+type {{.CamelCaseModel}} struct {
+	ID int `json:"id"`
+}
+
+type {{.CamelCaseModel}}DB struct {
+	db *gorm.DB
+}
+
+func New{{.CamelCaseModel}}DB(db *gorm.DB) *{{.CamelCaseModel}}DB {
+	return &{{.CamelCaseModel}}DB{db: db}
+}
+
+func (db *{{.CamelCaseModel}}DB) Create(model *{{.CamelCaseModel}}) error {
+	return db.db.Omit("id").Create(model).Error
+}
+
+func (db *{{.CamelCaseModel}}DB) Update(id int, model *{{.CamelCaseModel}}) error {
+    model.ID = id
+	return db.db.Model(model).Where("id = ?", id).Omit("id").Updates(model).Error
+}
+
+func (db *{{.CamelCaseModel}}DB) Delete(id int) error {
+	var model {{.CamelCaseModel}}
+	return db.db.Delete(&model, id).Error
+}
+
+func (db *{{.CamelCaseModel}}DB) Get(id int) (*{{.CamelCaseModel}}, error) {
+	var model {{.CamelCaseModel}}
+	err := db.db.First(&model, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &model, nil
+}
+
+func (db *{{.CamelCaseModel}}DB) Count() (int64, error) {
+	var count int64
+	var model {{.CamelCaseModel}}
+	err := db.db.Model(model).Count(&count).Error
+	return count, err
+}
+
+func (db *{{.CamelCaseModel}}DB) Find(desc bool, page, pageSize int) ([]*{{.CamelCaseModel}}, error) {
+	var order string
+	if desc {
+		order = "id desc"
+	} else {
+		order = "id asc"
+	}
+	var models []*{{.CamelCaseModel}}
+	err := db.db.Order(order).Offset((page - 1) * pageSize).Limit(pageSize).Find(&models).Error
+	if err != nil {
+		return nil, err
+	}
+	return models, nil
+}
